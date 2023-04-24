@@ -1,0 +1,89 @@
+buildscript {
+	repositories {
+		maven { url "https://maven.fabricmc.net/" }
+		maven { url "https://maven.architectury.dev/" }
+		maven { url "https://maven.minecraftforge.net/" }
+		mavenCentral()
+	}
+	dependencies {
+		classpath "dev.architectury.loom:dev.architectury.loom.gradle.plugin:1.1.335"
+	}
+}
+
+evaluationDependsOn(":core") //Gradle Do Not Be Weird Challenge (Impossible)
+evaluationDependsOn(":common-1.16.5")
+
+var WHAT = project(":common-1.16.5")
+
+apply plugin: "java"
+apply plugin: "dev.architectury.loom" 
+
+archivesBaseName = "${project.modId}-forge-1.16.5"
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+tasks.withType(JavaCompile) {
+	options.encoding = "UTF-8"
+	sourceCompatibility = "8"
+	targetCompatibility = "8"
+}
+java.withSourcesJar()
+
+
+loom {
+    // use this if you are using the official mojang mappings
+    // and want loom to stop warning you about their license
+    silentMojangMappingsLicense()
+
+    // since loom 0.10, you are **required** to use the
+    // "forge" block to configure forge-specific features,
+    // such as the mixinConfigs array or datagen
+    forge {
+        // specify the mixin configs used in this mod
+        // this will be added to the jar manifest as well!
+        mixinConfigs = [
+                "${project.modId}.mixins.json"
+        ]
+    }
+    mixin {
+		defaultRefmapName = "${project.modId}.refmap.json"
+		
+		//see https://github.com/FabricMC/fabric-loom/issues/456
+		//todo, maybe also fixable by updating floader?
+		useLegacyMixinAp = true
+    }
+}
+
+/// deps ///
+
+dependencies {
+	//basics
+       	minecraft "com.mojang.minecraft:1.16.5"
+	forge "net.minecraftforge:forge:1.16.5-36.2.39"
+	mappings loom.officialMojangMappings()
+	compileOnly "org.jetbrains:annotations:24.0.1"
+
+	
+	//xplat
+	implementation WHAT
+	implementation project(":core")
+}
+
+//fold in xplat resources and sources
+processResources {
+	from WHAT.sourceSets.main.resources
+	from project(":core").sourceSets.main.resources
+	
+	inputs.property "version", project.version
+	filesMatching("**/fabric.mod.json") {
+		expand "version": project.version
+	}
+}
+
+tasks.withType(JavaCompile) {
+	source(WHAT.sourceSets.main.allSource)
+	source(project(":core").sourceSets.main.allSource)
+}
+
+tasks.withType(GenerateModuleMetadata) {
+	enabled = false
+}
