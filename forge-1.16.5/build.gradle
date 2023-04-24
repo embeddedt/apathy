@@ -1,13 +1,5 @@
-buildscript {
-	repositories {
-		maven { url "https://maven.fabricmc.net/" }
-		maven { url "https://maven.architectury.dev/" }
-		maven { url "https://maven.minecraftforge.net/" }
-		mavenCentral()
-	}
-	dependencies {
-		classpath "dev.architectury.loom:dev.architectury.loom.gradle.plugin:1.1.335"
-	}
+plugins {
+  id 'dev.architectury.loom'
 }
 
 evaluationDependsOn(":core") //Gradle Do Not Be Weird Challenge (Impossible)
@@ -16,7 +8,6 @@ evaluationDependsOn(":common-1.16.5")
 var WHAT = project(":common-1.16.5")
 
 apply plugin: "java"
-apply plugin: "dev.architectury.loom" 
 
 archivesBaseName = "${project.modId}-forge-1.16.5"
 

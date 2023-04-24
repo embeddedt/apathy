@@ -1,17 +1,5 @@
-buildscript {
-	repositories {
-		maven {
-			url = "https://maven.fabricmc.net/"
-			content {
-				includeGroup "net.fabricmc"
-				includeGroup "fabric-loom"
-			}
-		}
-		mavenCentral()
-	}
-	dependencies {
-		classpath "fabric-loom:fabric-loom.gradle.plugin:1.1.10"
-	}
+plugins {
+  id 'dev.architectury.loom'
 }
 
 evaluationDependsOn(":core") //Gradle Do Not Be Weird Challenge (Impossible)
@@ -20,7 +8,6 @@ evaluationDependsOn(":common-1.16.5")
 var WHAT = project(":common-1.16.5")
 
 apply plugin: "java"
-apply plugin: "fabric-loom"
 
 archivesBaseName = "${project.modId}-fabric-1.16.5"
 
